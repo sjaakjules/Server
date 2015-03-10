@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{22667B3E-56F5-44AA-BE8B-A835A45E9A3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPclient", "TCPclient\TCPclient.csproj", "{ECA5E745-F653-4094-8DAD-F65C1047185F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPclient", "UDPclient\UDPclient.csproj", "{E49C5EFE-222D-43FD-9598-01ABAE0A96A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22667B3E-56F5-44AA-BE8B-A835A45E9A3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22667B3E-56F5-44AA-BE8B-A835A45E9A3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22667B3E-56F5-44AA-BE8B-A835A45E9A3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22667B3E-56F5-44AA-BE8B-A835A45E9A3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECA5E745-F653-4094-8DAD-F65C1047185F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECA5E745-F653-4094-8DAD-F65C1047185F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECA5E745-F653-4094-8DAD-F65C1047185F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECA5E745-F653-4094-8DAD-F65C1047185F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E49C5EFE-222D-43FD-9598-01ABAE0A96A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E49C5EFE-222D-43FD-9598-01ABAE0A96A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E49C5EFE-222D-43FD-9598-01ABAE0A96A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E49C5EFE-222D-43FD-9598-01ABAE0A96A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
