@@ -87,7 +87,7 @@
             this.udpPort.Size = new System.Drawing.Size(120, 20);
             this.udpPort.TabIndex = 3;
             this.udpPort.Value = new decimal(new int[] {
-            6004,
+            5004,
             0,
             0,
             0});
