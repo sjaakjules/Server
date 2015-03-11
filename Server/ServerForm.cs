@@ -22,6 +22,7 @@ namespace Server
         private List<Socket> tcpClients = new List<Socket>();
 
         // UDP Fields
+        private UDPServer udpServer;
         private Socket udpServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         private byte[] udpBuffer = new byte[1024];
         private List<Socket> udpClients = new List<Socket>();
@@ -30,18 +31,26 @@ namespace Server
         delegate void UpdateTextCallback(string text, TextBox textBox);
         delegate void ClearTextCallback(TextBox textBox);
 
-        #region Methods
 
-        #region Global methods
+        #region Properties
+        public TextBox TextIn { get { return serverIn; } }
+        public TextBox TextOut { get { return serverOut; } }
+        public int UDPPort { get { return (int)udpPort.Value; } }
+
+        #endregion
+
         public ServerForm()
         {
             InitializeComponent();
+            udpServer = new UDPServer(this);
         }
 
+        #region Methods
 
+        #region Global methods
         private void bUDP_Click(object sender, EventArgs e)
         {
-            SetupUDPServer();
+            udpServer.StartListening();
         }
 
         private void bTCP_Click(object sender, EventArgs e)
@@ -54,7 +63,7 @@ namespace Server
         /// </summary>
         /// <param name="text"> String of the text to be printed.</param>
         /// <param name="textBox">The TextBox object to which the string is appended</param>
-        private void UpdateText(string text, TextBox textBox)
+        public void UpdateText(string text, TextBox textBox)
         {
             // Checks if we can add text now or will have to asyc it later
             if (textBox.InvokeRequired)
@@ -74,7 +83,7 @@ namespace Server
         /// Thread safe method to clear a textBox
         /// </summary>
         /// <param name="textBox">The TextBox object which will be cleared</param>
-        private void ClearText(TextBox textBox)
+        public void ClearText(TextBox textBox)
         {
             if (textBox.InvokeRequired)
             {
