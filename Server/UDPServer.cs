@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Server
 {
@@ -16,13 +17,14 @@ namespace Server
         Socket udpSocket;
         private byte[] buffer;
         private byte[] sendByteData;
+        private bool serverIsActive = false;
         
 
 
         #endregion
 
         #region Properties
-
+        public bool IsActive { get { return serverIsActive; } }
         #endregion
 
         #region Constructor
@@ -44,7 +46,7 @@ namespace Server
             catch (Exception ex)
             {
                 // TODO: impliment error catching
-                ui.UpdateText("Exception: " + ex.Message, ui.TextIn);
+                ui.UpdateText("Exception: " + ex.Message, ui.InfoWindow);
             }
         }
 
@@ -56,45 +58,65 @@ namespace Server
         public void StopServer()
         {
             udpSocket.Shutdown(SocketShutdown.Both);
-            udpSocket.Shutdown(SocketShutdown.Receive);
             udpSocket.Close();
             udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            serverIsActive = false;
+            ui.UpdateText(": Sever is Dead.", ui.InfoWindow);
         }
 
-        public void StartListening()
+        public bool StartListening()
         {
             try
             {
-                ui.UpdateText("Starting UDP server at " + DateTime.Now.ToString(), ui.TextIn);
+                ui.UpdateText(": Starting UDP server", ui.InfoWindow);
                 buffer = new byte[1024];
                 endpoint = new IPEndPoint(IPAddress.Any, ui.UDPPort);
                 udpSocket.Bind(endpoint);
-                ui.UpdateText("Listening...", ui.TextIn);
                 EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
                 udpSocket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP, ReceiveCallback, udpSocket);
 
             }
             catch (SocketException se)
             {
-                ui.UpdateText("SocketException: " + se.Message, ui.TextIn);
+                ui.UpdateText(": UDP: Sever died.", ui.InfoWindow);
+                ui.UpdateText(": UDP: SocketException: " + se.Message, ui.InfoWindow);
+                return false;
+
             }
             catch (Exception ex)
             {
-                ui.UpdateText("Exception: " + ex.Message, ui.TextIn);
+                ui.UpdateText(": UDP: Exception: " + ex.Message, ui.InfoWindow);
+                return false;
             }
+            ui.UpdateText(": UDP: Listening...", ui.InfoWindow);
+            serverIsActive = true;
+            return true;
         }
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            ui.UpdateText("UDP active...", ui.TextIn);
             Socket receiveSocket = (Socket)ar.AsyncState;
-            EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
-            int dataLen = receiveSocket.EndReceiveFrom(ar, ref clientEP);
-            byte[] data = new byte[dataLen];
-            Array.Copy(buffer, data, dataLen);
-            ui.UpdateText("UDP: " + Encoding.ASCII.GetString(data), ui.TextIn);
-            sendByteData = ProcessData(data, clientEP);
-            sendData(clientEP, sendByteData);
+            try
+            {
+                
+                EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
+                int dataLen = receiveSocket.EndReceiveFrom(ar, ref clientEP);
+                ui.UpdateText(": UDP: active...", ui.InfoWindow);    
+                byte[] data = new byte[dataLen];
+                Array.Copy(buffer, data, dataLen);
+                ui.UpdateText("UDP: " + Encoding.ASCII.GetString(data), ui.MsgWindow);
+                sendByteData = ProcessData(data, clientEP);
+                sendData(clientEP, sendByteData); 
+                          
+            }
+            catch (ObjectDisposedException)
+            {
+                ui.UpdateText(": UDP: Stopped Listening", ui.InfoWindow);
+            }
+            catch (Exception ex)
+            {
+                ui.UpdateText(": UDP: Exception: " + ex.Message, ui.InfoWindow);
+            }
         }
 
         private void sendData(EndPoint clientEP, byte[] sendByteData)
@@ -108,7 +130,7 @@ namespace Server
             catch (Exception ex)
             {
                 // TODO: exception handeling
-                ui.UpdateText("Exception: " + ex.Message, ui.TextIn);
+                ui.UpdateText(": UDP: Exception: " + ex.Message, ui.InfoWindow);
             }
         }
 
@@ -117,11 +139,12 @@ namespace Server
             try
             {
                 udpSocket.EndSend(ar);
+                ui.UpdateText(": UDP: Sent Packet", ui.InfoWindow);
             }
             catch (Exception ex)
             {
                 // TODO: exception handeling
-                ui.UpdateText("Exception: " + ex.Message, ui.TextIn);
+                ui.UpdateText(": UDP: Exception: " + ex.Message, ui.InfoWindow);
             }
         }
 
@@ -130,7 +153,8 @@ namespace Server
             // TODO: Read incomming data and convert to string
             // TODO: Update variables
             // TODO: Generate data to be sent back
-            return new byte[]{0};
+            string msg = "Got ya";
+            return Encoding.ASCII.GetBytes(msg);
         }
         #endregion
     }

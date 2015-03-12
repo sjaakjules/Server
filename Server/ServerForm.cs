@@ -23,9 +23,6 @@ namespace Server
 
         // UDP Fields
         private UDPServer udpServer;
-        private Socket udpServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        private byte[] udpBuffer = new byte[1024];
-        private List<Socket> udpClients = new List<Socket>();
 
         // Delegates
         delegate void UpdateTextCallback(string text, TextBox textBox);
@@ -33,8 +30,8 @@ namespace Server
 
 
         #region Properties
-        public TextBox TextIn { get { return serverIn; } }
-        public TextBox TextOut { get { return serverOut; } }
+        public TextBox InfoWindow { get { return serverIn; } }
+        public TextBox MsgWindow { get { return serverOut; } }
         public int UDPPort { get { return (int)udpPort.Value; } }
 
         #endregion
@@ -48,10 +45,30 @@ namespace Server
         #region Methods
 
         #region Global methods
+
+        private void udpPort_ValueChanged(object sender, EventArgs e)
+        {
+            if (udpServer.IsActive)
+            {
+                udpServer.StopServer();
+                bUDP.Text = "Start UDP server";
+            }
+        }
+
+
         private void bUDP_Click(object sender, EventArgs e)
         {
-            udpServer.StartListening();
+            if (udpServer.IsActive)
+            {
+                udpServer.StopServer();
+                bUDP.Text = "Start UDP server";
+            }
+            else if (udpServer.StartListening())
+            {
+                bUDP.Text = "Stop UDP server";                
+            }
         }
+
 
         private void bTCP_Click(object sender, EventArgs e)
         {
@@ -75,6 +92,10 @@ namespace Server
             else
             {
                 // No invoke required so will change text
+                if (textBox.Name == serverIn.Name)
+                {
+                    text = DateTime.Now.ToLongTimeString() + text;
+                }
                 textBox.AppendText(text + System.Environment.NewLine);
             }
         }
@@ -154,42 +175,7 @@ namespace Server
 
         #endregion
 
-        #region UDP Methods
-        private void SetupUDPServer()
-        {
-            try
-            {
-                UpdateText("Finding UDP clients...", serverOut);
-                udpServerSocket.Bind(new IPEndPoint(IPAddress.Any, (int)udpPort.Value));
-            }
-            catch (SocketException se)
-            {
-                UpdateText("Socket Exception:", serverIn);
-                UpdateText(se.Message, serverIn);
-            }
-        }
 
-        private void AcceptUDPCallBack(IAsyncResult ar)
-        {
-            Socket socket = udpServerSocket.EndAccept(ar);
-            UpdateText("UDP Client connected", serverIn);
-            udpClients.Add(socket);
-            socket.BeginReceive(udpBuffer, 0, udpBuffer.Length, SocketFlags.None, new AsyncCallback(RecieveUDPCallback), socket);
-            udpServerSocket.BeginAccept(new AsyncCallback(AcceptUDPCallBack), null);
-        }
-
-        private void RecieveUDPCallback(IAsyncResult ar)
-        {
-            Socket socket = (Socket)ar.AsyncState;
-            int recieved = socket.EndReceive(ar);
-            byte[] dataBuffer = new byte[recieved];
-            Array.Copy(udpBuffer, dataBuffer, recieved);
-            string text = Encoding.ASCII.GetString(dataBuffer);
-            UpdateText("UDP: " + text, serverIn);
-            SendText("UDP: ", "Msg revieved.", socket);
-            socket.BeginReceive(udpBuffer, 0, udpBuffer.Length, SocketFlags.None, new AsyncCallback(RecieveUDPCallback), socket);
-        }
-        #endregion
 
         #endregion
     }

@@ -29,10 +29,8 @@
         private void InitializeComponent()
         {
             this.serverIn = new System.Windows.Forms.TextBox();
-            this.tcpIP = new System.Windows.Forms.TextBox();
             this.tcpPort = new System.Windows.Forms.NumericUpDown();
             this.udpPort = new System.Windows.Forms.NumericUpDown();
-            this.udpIP = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.serverOut = new System.Windows.Forms.TextBox();
@@ -49,14 +47,6 @@
             this.serverIn.Name = "serverIn";
             this.serverIn.Size = new System.Drawing.Size(728, 221);
             this.serverIn.TabIndex = 0;
-            // 
-            // tcpIP
-            // 
-            this.tcpIP.Location = new System.Drawing.Point(806, 317);
-            this.tcpIP.Name = "tcpIP";
-            this.tcpIP.Size = new System.Drawing.Size(100, 20);
-            this.tcpIP.TabIndex = 1;
-            this.tcpIP.Text = "192.168.0.5";
             // 
             // tcpPort
             // 
@@ -91,14 +81,7 @@
             0,
             0,
             0});
-            // 
-            // udpIP
-            // 
-            this.udpIP.Location = new System.Drawing.Point(806, 149);
-            this.udpIP.Name = "udpIP";
-            this.udpIP.Size = new System.Drawing.Size(100, 20);
-            this.udpIP.TabIndex = 4;
-            this.udpIP.Text = "192.168.0.6";
+            this.udpPort.ValueChanged += new System.EventHandler(this.udpPort_ValueChanged);
             // 
             // label1
             // 
@@ -156,10 +139,8 @@
             this.Controls.Add(this.serverOut);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.udpIP);
             this.Controls.Add(this.udpPort);
             this.Controls.Add(this.tcpPort);
-            this.Controls.Add(this.tcpIP);
             this.Controls.Add(this.serverIn);
             this.Name = "ServerForm";
             this.Text = "Form1";
@@ -173,10 +154,8 @@
         #endregion
 
         private System.Windows.Forms.TextBox serverIn;
-        private System.Windows.Forms.TextBox tcpIP;
         private System.Windows.Forms.NumericUpDown tcpPort;
         private System.Windows.Forms.NumericUpDown udpPort;
-        private System.Windows.Forms.TextBox udpIP;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox serverOut;
