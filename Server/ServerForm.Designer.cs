@@ -52,7 +52,7 @@
             // 
             this.tcpPort.Location = new System.Drawing.Point(806, 274);
             this.tcpPort.Maximum = new decimal(new int[] {
-            9999,
+            99999,
             0,
             0,
             0});
@@ -69,7 +69,7 @@
             // 
             this.udpPort.Location = new System.Drawing.Point(806, 106);
             this.udpPort.Maximum = new decimal(new int[] {
-            9999,
+            99999,
             0,
             0,
             0});

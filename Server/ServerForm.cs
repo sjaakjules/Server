@@ -33,6 +33,7 @@ namespace Server
         public TextBox InfoWindow { get { return serverIn; } }
         public TextBox MsgWindow { get { return serverOut; } }
         public int UDPPort { get { return (int)udpPort.Value; } }
+        public int TCPPort { get { return (int)tcpPort.Value; } }
 
         #endregion
 
@@ -44,7 +45,7 @@ namespace Server
 
         #region Methods
 
-        #region Global methods
+        #region GUI methods
 
         private void udpPort_ValueChanged(object sender, EventArgs e)
         {
