@@ -138,10 +138,18 @@ namespace Server
         /// </summary>
         private void SetupTCPServer()
         {
-            UpdateText("Finding TCP clients...",serverOut);
-            tcpServerSocket.Bind(new IPEndPoint(IPAddress.Any, (int)tcpPort.Value));
-            tcpServerSocket.Listen(5);
-            tcpServerSocket.BeginAccept(new AsyncCallback(AcceptTCPCallBack), null);
+            try
+            {
+                UpdateText("Finding TCP clients...",serverOut);
+                tcpServerSocket.Bind(new IPEndPoint(IPAddress.Any, (int)tcpPort.Value));
+                tcpServerSocket.Listen(5);
+                tcpServerSocket.BeginAccept(new AsyncCallback(AcceptTCPCallBack), null);
+            }
+            catch (Exception ex)
+            {
+                // TODO: impliment error catching
+                UpdateText("Exception: " + ex.Message, InfoWindow);
+            }
         }
 
         /// <summary>
