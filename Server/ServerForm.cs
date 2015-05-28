@@ -34,6 +34,7 @@ namespace Server
         public TextBox MsgWindow { get { return serverOut; } }
         public int UDPPort { get { return (int)udpPort.Value; } }
         public int TCPPort { get { return (int)tcpPort.Value; } }
+        public String UDPip { get { return udpIP.Text; } }
 
         #endregion
 

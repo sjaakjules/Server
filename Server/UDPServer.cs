@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Xml;
 using System.IO;
+using System.Net.NetworkInformation;
 
 namespace Server
 {
@@ -20,6 +21,10 @@ namespace Server
         private byte[] buffer;
         private byte[] sendByteData;
         private bool serverIsActive = false;
+        private float[] KukaPos;
+        private float[] KukaPosSent;
+        private long Ipoc;
+        private bool hasUpdatedIpoc;
         
 
 
@@ -34,7 +39,13 @@ namespace Server
         public UDPServer(ServerForm UI)
         {
             ui = UI;
+            KukaPos = new float[6];
+            KukaPosSent = new float[6];
+            hasUpdatedIpoc = false;
             InitialiseUDPSocket();
+            ui.UpdateText(": Availiable networks:", ui.InfoWindow);
+            findIP();
+
         }
         #endregion
 
@@ -66,17 +77,33 @@ namespace Server
             ui.UpdateText(": Sever is Dead.", ui.InfoWindow);
         }
 
+        private void findIP()
+        {
+            foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                ui.UpdateText("Name: " + netInterface.Name, ui.InfoWindow);
+                ui.UpdateText("Description: " + netInterface.Description, ui.InfoWindow);
+                ui.UpdateText("Addresses: ", ui.InfoWindow);
+                IPInterfaceProperties ipProps = netInterface.GetIPProperties();
+                foreach (UnicastIPAddressInformation addr in ipProps.UnicastAddresses)
+                {
+                    ui.UpdateText(" " + addr.Address.ToString(), ui.InfoWindow);
+                }
+                ui.UpdateText("", ui.InfoWindow);
+            }
+        }
+
         public bool StartListening()
         {
             try
             {
                 ui.UpdateText(": Starting UDP server", ui.InfoWindow);
                 buffer = new byte[1024];
-                endpoint = new IPEndPoint(IPAddress.Any, ui.UDPPort);
+                endpoint = new IPEndPoint(IPAddress.Parse(ui.UDPip), ui.UDPPort);
                 udpSocket.Bind(endpoint);
-                EndPoint newClientEP = new IPEndPoint(IPAddress.Any, ui.TCPPort);
+                EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
                 udpSocket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP, ReceiveCallback, udpSocket);
-
+                
             }
             catch (SocketException se)
             {
@@ -99,12 +126,13 @@ namespace Server
             Socket receiveSocket = (Socket)ar.AsyncState;
             try
             {
-                
+               
                 EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
                 int dataLen = receiveSocket.EndReceiveFrom(ar, ref clientEP);
                 ui.UpdateText(": UDP: active...", ui.InfoWindow);    
                 byte[] data = new byte[dataLen];
                 Array.Copy(buffer, data, dataLen);
+                ui.ClearText(ui.MsgWindow);
                 ui.UpdateText("UDP: " + Encoding.ASCII.GetString(data), ui.MsgWindow);
                 sendByteData = ProcessData(data, clientEP);
                 sendData(clientEP, sendByteData); 
@@ -152,9 +180,13 @@ namespace Server
         private byte[] ProcessData(byte[] data, EndPoint clientEP)
         {
             // TODO: Read incomming data and convert to string
+            string dataString = Encoding.ASCII.GetString(data);
+            //ConvertByteToXml(data);
             // TODO: Update variables
             // TODO: Generate data to be sent back
-            string msg = "Got ya";
+            ui.UpdateText(dataString, ui.MsgWindow);
+            
+            string msg = "<Sen Type=\"ImFree\"><EStr></EStr><Tech T21=\"1.09\" T22=\"2.08\" T23=\"3.07\" T24=\"4.06\" T25=\"5.05\" T26=\"6.04\" T27=\"7.03\" T28=\"8.02\" T29=\"9.01\" T210=\"10.00\" /><RKorr X=\"0.000\" Y=\"0.000\" Z=\"0.000\" A=\"0.000\" B=\"0.000\" C=\"0.000\" /><DiO>125</DiO><IPOC>" + Ipoc.ToString() + "</IPOC></Sen>";
             return Encoding.ASCII.GetBytes(msg);
         }
 
@@ -179,35 +211,35 @@ namespace Server
                         {
                             case "RIst":
                                 string RIstValue;
-                                RIstValue = reader["X"];/*
+                                RIstValue = reader["X"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.X = float.Parse(RIstValue);
+                                    KukaPos[0] = float.Parse(RIstValue);
                                 }
                                 RIstValue = reader["Y"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.Y = float.Parse(RIstValue);
+                                    KukaPos[1] = float.Parse(RIstValue);
                                 }
                                 RIstValue = reader["Z"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.Z = float.Parse(RIstValue);
+                                    KukaPos[2] = float.Parse(RIstValue);
                                 }
                                 RIstValue = reader["A"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.A = float.Parse(RIstValue);
+                                    KukaPos[3] = float.Parse(RIstValue);
                                 }
                                 RIstValue = reader["B"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.B = float.Parse(RIstValue);
+                                    KukaPos[4] = float.Parse(RIstValue);
                                 }
                                 RIstValue = reader["C"];
                                 if (RIstValue != null)
                                 {
-                                    measuredPosition.Y = float.Parse(RIstValue);
+                                    KukaPos[5] = float.Parse(RIstValue);
                                 }
                                 break;
                             case "RSol":
@@ -215,34 +247,34 @@ namespace Server
                                 RSolValue = reader["X"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.X = float.Parse(RSolValue);
+                                    KukaPosSent[0] = float.Parse(RSolValue);
                                 }
                                 RSolValue = reader["Y"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.Y = float.Parse(RSolValue);
+                                    KukaPosSent[1] = float.Parse(RSolValue);
                                 }
                                 RSolValue = reader["Z"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.Z = float.Parse(RSolValue);
+                                    KukaPosSent[2] = float.Parse(RSolValue);
                                 }
                                 RSolValue = reader["A"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.A = float.Parse(RSolValue);
+                                    KukaPosSent[3] = float.Parse(RSolValue);
                                 }
                                 RSolValue = reader["B"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.B = float.Parse(RSolValue);
+                                    KukaPosSent[4] = float.Parse(RSolValue);
                                 }
                                 RSolValue = reader["C"];
                                 if (RSolValue != null)
                                 {
-                                    measuredSentPosition.Y = float.Parse(RSolValue);
+                                    KukaPosSent[5] = float.Parse(RSolValue);
                                 }
-                                break;
+                                break;/*
                             case "AIPos":
                                 string AIPosValue;
                                 AIPosValue = reader["A1"];
@@ -341,9 +373,10 @@ namespace Server
                                 {
                                     measuredCurrent.A6 = float.Parse(MACurValue);
                                 }
-                                break;
+                                break;*/
                             case "IPOC":
-                                IPoc = long.Parse(reader.Value.Trim());*/
+                                Ipoc = long.Parse(reader.Value.Trim());
+                                hasUpdatedIpoc = true;
                                 break;
                         }
                     }
