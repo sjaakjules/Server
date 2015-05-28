@@ -9,6 +9,7 @@ using System.Threading;
 using System.Xml;
 using System.IO;
 using System.Net.NetworkInformation;
+using System.Diagnostics;
 
 namespace Server
 {
@@ -123,19 +124,23 @@ namespace Server
 
         private void ReceiveCallback(IAsyncResult ar)
         {
+            Stopwatch receiveTimer = new Stopwatch();
+            receiveTimer.Start();
             Socket receiveSocket = (Socket)ar.AsyncState;
+            ui.UpdateText("Local: " + receiveSocket.LocalEndPoint.ToString(), ui.InfoWindow);
+            ui.UpdateText("Remote: " + receiveSocket.RemoteEndPoint.ToString(), ui.InfoWindow);
             try
             {
-               
-                EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
-                int dataLen = receiveSocket.EndReceiveFrom(ar, ref clientEP);
+                IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+                EndPoint tempRemoteEP = (EndPoint)sender;
+                int dataLen = receiveSocket.EndReceiveFrom(ar, ref tempRemoteEP);
                 ui.UpdateText(": UDP: active...", ui.InfoWindow);    
                 byte[] data = new byte[dataLen];
                 Array.Copy(buffer, data, dataLen);
                 ui.ClearText(ui.MsgWindow);
-                ui.UpdateText("UDP: " + Encoding.ASCII.GetString(data), ui.MsgWindow);
-                sendByteData = ProcessData(data, clientEP);
-                sendData(clientEP, sendByteData); 
+                ui.UpdateText("UDP: " + Encoding.UTF8.GetString(data), ui.MsgWindow);
+                sendByteData = ProcessData(data, tempRemoteEP);
+                sendData(tempRemoteEP, sendByteData); 
                           
             }
             catch (ObjectDisposedException)
@@ -180,16 +185,21 @@ namespace Server
         private byte[] ProcessData(byte[] data, EndPoint clientEP)
         {
             // TODO: Read incomming data and convert to string
-            string dataString = Encoding.ASCII.GetString(data);
+            string dataString = Encoding.UTF8.GetString(data);
             //ConvertByteToXml(data);
             // TODO: Update variables
             // TODO: Generate data to be sent back
+            ui.UpdateText("Client: " + clientEP.ToString(), ui.MsgWindow);
             ui.UpdateText(dataString, ui.MsgWindow);
             
             string msg = "<Sen Type=\"ImFree\"><EStr></EStr><Tech T21=\"1.09\" T22=\"2.08\" T23=\"3.07\" T24=\"4.06\" T25=\"5.05\" T26=\"6.04\" T27=\"7.03\" T28=\"8.02\" T29=\"9.01\" T210=\"10.00\" /><RKorr X=\"0.000\" Y=\"0.000\" Z=\"0.000\" A=\"0.000\" B=\"0.000\" C=\"0.000\" /><DiO>125</DiO><IPOC>" + Ipoc.ToString() + "</IPOC></Sen>";
-            return Encoding.ASCII.GetBytes(msg);
+            return Encoding.UTF8.GetBytes(msg);
         }
 
+        public String ConvertByteToString(byte[] data)
+        {
+            return Encoding.UTF8.GetString(data);
+        }
 
         public void ConvertByteToXml(byte[] data)
         {
