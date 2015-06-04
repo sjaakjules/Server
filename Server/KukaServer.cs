@@ -1,20 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
-using System.IO;
-using System.Net.NetworkInformation;
-using System.Diagnostics;
 
 namespace Server
 {
-    class UDPServer
-    {
         // State object for reading client data asynchronously
     public class StateObject
     {
@@ -46,7 +42,7 @@ namespace Server
         public bool hasLoadedMessageOut;
     }
 
-    class UDP_Server
+    class KukaServer
     {
         // Thread signals to pause until data has been received
         public ManualResetEvent haveReceived = new ManualResetEvent(false);
@@ -66,7 +62,7 @@ namespace Server
 
         public Trajectory CurrentTrajectory;
 
-        public RobotInfo _Robot;
+        public RobotData _Robot;
 
 
 
@@ -78,7 +74,7 @@ namespace Server
         /// </summary>
         /// <param name="port"></param> The port which communication occurs on
         /// <param name="robot"></param> The robot information to be updated and read from
-        public UDP_Server(int port, RobotInfo robot, bool isKuka)
+        public KukaServer(int port, RobotData robot, bool isKuka)
         {
             _Robot = robot;
             _Port = port;
@@ -747,3 +743,4 @@ namespace Server
         #endregion
     }
 }
+

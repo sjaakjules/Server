@@ -1,52 +1,18 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
-using System.IO;
-using System.Net.NetworkInformation;
-using System.Diagnostics;
 
 namespace Server
 {
-    class UDPServer
-    {
-        // State object for reading client data asynchronously
-    public class StateObject
-    {
-        // Client  socket.
-        public Socket Socket = null;
-        // Client EP.
-        public EndPoint clientEP = null;
-        // Client IPEP.
-        public IPEndPoint clientIpEP = null;
-        // Size of receive buffer.
-        public int PacketInSize;
-        // Receive buffer.
-        public byte[] PacketIn;
-        // Received data string.
-        public string MessageIn;
-        // Size of sending buffer.
-        public int PacketOutSize;
-        // Sending buffer.
-        public byte[] PacketOut;
-        // Sending XML document
-        public XmlDocument XMLout;
-        // Sending data string.
-        public string MessageOut;
-        // Received IPOC.
-        public long IPOC = 0;
-        // Received cartesian coordinates.
-        public double[] cartPos = new double[6];
-        // trigger that the message is loaded into the state holder
-        public bool hasLoadedMessageOut;
-    }
-
-    class UDP_Server
+        
+    class ExternalServer
     {
         // Thread signals to pause until data has been received
         public ManualResetEvent haveReceived = new ManualResetEvent(false);
@@ -66,7 +32,7 @@ namespace Server
 
         public Trajectory CurrentTrajectory;
 
-        public RobotInfo _Robot;
+        public RobotData _Robot;
 
 
 
@@ -78,7 +44,7 @@ namespace Server
         /// </summary>
         /// <param name="port"></param> The port which communication occurs on
         /// <param name="robot"></param> The robot information to be updated and read from
-        public UDP_Server(int port, RobotInfo robot, bool isKuka)
+        public ExternalServer(int port, RobotData robot, bool isKuka)
         {
             _Robot = robot;
             _Port = port;
